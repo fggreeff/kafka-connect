@@ -1,0 +1,80 @@
+version: '3.7'
+
+#volumes:
+#  tfstate:
+#  terraform:
+
+services:
+#  terraform:
+#    build:
+#      #Should run at top level context above this submodule
+#      context: ../../
+#      dockerfile: Dockerfile
+#      args:
+#        QUERY_FILE: kafka-connect/connector/queries/confirmed_purchases.sql
+#        NAME: example-kafka-connector
+##        SERVER: ldc
+#    depends_on:
+#      - kafka-connect
+#    environment:
+##      - AWS_ACCESS_KEY_ID
+##      - AWS_SECRET_ACCESS_KEY
+##      - AWS_SESSION_TOKEN
+#        ENVIRONMENT: "local"
+#        TF_CONFIG: "file-local"
+#        TF_VAR_kafka_connect_url: "http://kafka-connect:8083"
+#    volumes:
+#      - tfstate:/home/tf/infra/terraform.tfstate.d
+#      - terraform:/home/tf/infra/.terraform
+
+  zookeeper:
+    image: wurstmeister/zookeeper
+    ports:
+      - "2181:2181"
+  kafka:
+    image: wurstmeister/kafka
+    ports:
+      - "9092:9092"
+    depends_on:
+      - zookeeper
+    healthcheck:
+      test: "/opt/kafka/bin/kafka-topics.sh --zookeeper zookeeper --list | grep quickstart-config"
+      interval: 10s
+      timeout: 10s
+      retries: 10
+    environment:
+      KAFKA_ADVERTISED_HOST_NAME: kafka
+      KAFKA_CREATE_TOPICS: "quickstart-status:1:1,quickstart-offsets:1:1,quickstart-config:1:1,postgres-output-topic:1:1,data.kafka.connect.connector.postgres:1:1"
+      KAFKA_ZOOKEEPER_CONNECT: zookeeper:2181
+  kafka-connect:
+    image: confluentinc/cp-kafka-connect
+    ports:
+      - "8082:8082"
+    depends_on:
+      - kafka
+      - postgres
+    environment:
+      CONNECT_BOOTSTRAP_SERVERS: "kafka:9092"
+      CONNECT_REST_PORT: "8082"
+      CONNECT_GROUP_ID: "connect-local"
+      CONNECT_CONFIG_STORAGE_TOPIC: "quickstart-config"
+      CONNECT_OFFSET_STORAGE_TOPIC: "quickstart-offsets"
+      CONNECT_STATUS_STORAGE_TOPIC: "quickstart-status"
+      CONNECT_KEY_CONVERTER: "org.apache.kafka.connect.json.JsonConverter"
+      CONNECT_VALUE_CONVERTER: "org.apache.kafka.connect.json.JsonConverter"
+      CONNECT_INTERNAL_KEY_CONVERTER: "org.apache.kafka.connect.json.JsonConverter"
+      CONNECT_INTERNAL_VALUE_CONVERTER: "org.apache.kafka.connect.json.JsonConverter"
+      CONNECT_REST_ADVERTISED_HOST_NAME: "localhost"
+      CONNECT_PLUGIN_PATH: /usr/share/java
+  postgres:
+    image: postgres:11.5-alpine
+    ports:
+      - "5432:5432"
+    volumes:
+      - ./connector/pgsql_init:/docker-entrypoint-initdb.d
+    environment:
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: postgres
+
+
+

@@ -1,0 +1,15 @@
+{
+  "connector.class": "io.confluent.connect.jdbc.JdbcSourceConnector",
+  "timestamp.column.name": "row_create_date",
+  "connection.password": "postgres",
+  "validate.non.null": "false",
+  "tasks.max": "1",
+  "query": "SELECT * FROM model.sales",
+  "offset.flush.timeout.ms": "10000",
+  "mode": "timestamp",
+  "topic.prefix": "data.kafka-connector.connector.postgres",
+  "connection.user": "postgres",
+  "poll.interval.ms": "600000",
+  "name": "example-kafka-connector",
+  "connection.url": "jdbc:postgresql://postgres:5432/postgres"
+}
