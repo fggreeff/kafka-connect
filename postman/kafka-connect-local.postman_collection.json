@@ -1,0 +1,156 @@
+{
+	"info": {
+		"_postman_id": "313a9481-d771-4b48-beb1-4a010a8000b0",
+		"name": "kafka-connect-local",
+		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+	},
+	"item": [
+		{
+			"name": "POST / create connector",
+			"request": {
+				"method": "PUT",
+				"header": [
+					{
+						"key": "Content-Type",
+						"value": "application/json",
+						"type": "text"
+					}
+				],
+				"body": {
+					"mode": "raw",
+					"raw": "{\n        \"connector.class\": \"io.confluent.connect.jdbc.JdbcSourceConnector\",\n        \"timestamp.column.name\": \"row_create_date\",\n        \"connection.password\": \"postgres\",\n        \"validate.non.null\": \"false\",\n        \"tasks.max\": \"1\",\n        \"query\": \"SELECT * FROM model.sales\", \n        \"offset.flush.timeout.ms\": \"10000\",\n        \"mode\": \"timestamp\",\n        \"topic.prefix\": \"data.kafka-connector.connector.postgres\", \n        \"connection.user\": \"postgres\",\n        \"poll.interval.ms\": \"600000\",\n        \"name\": \"example-kafka-connector\",\n        \"connection.url\": \"jdbc:postgresql://postgres:5432/postgres\" \n    }\n"
+				},
+				"url": {
+					"raw": "http://localhost:8082/connectors/example-kafka-connector/config",
+					"protocol": "http",
+					"host": [
+						"localhost"
+					],
+					"port": "8082",
+					"path": [
+						"connectors",
+						"example-kafka-connector",
+						"config"
+					]
+				},
+				"description": "Doc:\nhttps://docs.confluent.io/current/connect/references/restapi.html"
+			},
+			"response": []
+		},
+		{
+			"name": "GET / connectors",
+			"request": {
+				"method": "GET",
+				"header": [],
+				"url": {
+					"raw": "http://localhost:8082/connectors/",
+					"protocol": "http",
+					"host": [
+						"localhost"
+					],
+					"port": "8082",
+					"path": [
+						"connectors",
+						""
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "GET /connectors/(string:name)/status",
+			"request": {
+				"method": "GET",
+				"header": [],
+				"url": {
+					"raw": "http://localhost:8082/connectors/example-kafka-connector/status",
+					"protocol": "http",
+					"host": [
+						"localhost"
+					],
+					"port": "8082",
+					"path": [
+						"connectors",
+						"example-kafka-connector",
+						"status"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "POST /connectors/(string:name)/restart",
+			"request": {
+				"method": "POST",
+				"header": [
+					{
+						"key": "Content-Type",
+						"value": "application/json",
+						"type": "text"
+					}
+				],
+				"url": {
+					"raw": "http://localhost:8082/connectors/example-kafka-connector/tasks/0/restart",
+					"protocol": "http",
+					"host": [
+						"localhost"
+					],
+					"port": "8082",
+					"path": [
+						"connectors",
+						"example-kafka-connector",
+						"tasks",
+						"0",
+						"restart"
+					]
+				},
+				"description": "Restart the connector and its tasks. Return 409 (Conflict) if rebalance is in process"
+			},
+			"response": []
+		},
+		{
+			"name": "DELETE /connectors/(string:name)",
+			"request": {
+				"method": "DELETE",
+				"header": [],
+				"url": {
+					"raw": "http://localhost:8082/connectors/example-kafka-connector",
+					"protocol": "http",
+					"host": [
+						"localhost"
+					],
+					"port": "8082",
+					"path": [
+						"connectors",
+						"example-kafka-connector"
+					]
+				},
+				"description": "Delete a connector, halting all tasks and deleting its configuration. Return 409 (Conflict) if rebalance is in process"
+			},
+			"response": []
+		}
+	],
+	"event": [
+		{
+			"listen": "prerequest",
+			"script": {
+				"id": "25bc1fee-c980-4fae-ad57-7e9cdee48128",
+				"type": "text/javascript",
+				"exec": [
+					""
+				]
+			}
+		},
+		{
+			"listen": "test",
+			"script": {
+				"id": "22d8523b-13e2-44bd-92b7-bd9da0eea48b",
+				"type": "text/javascript",
+				"exec": [
+					""
+				]
+			}
+		}
+	],
+	"protocolProfileBehavior": {}
+}
